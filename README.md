@@ -253,3 +253,7 @@ watch -n 2 'free -m'
 **Recommendation:** FrankenPHP for better performance, PHP-FPM for maximum stability.
 
 ---
+
+### Credit:
+
+Inspiration from: https://www.damianoperri.it/public/phpCalculator/
