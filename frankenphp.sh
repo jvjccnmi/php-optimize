@@ -289,7 +289,6 @@ print_table() {
       index frankenphp-worker.php
       try_files {path} frankenphp-worker.php
       resolve_root_symlink
-      num_threads $NUM_THREADS
     }
   }
 }

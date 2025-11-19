@@ -250,10 +250,46 @@ watch -n 2 'free -m'
 | **Memory usage** | 441 MB | 459 MB | PHP-FPM (4% less) |
 | **Setup complexity** | Medium | Medium | Tie |
 
-**Recommendation:** FrankenPHP for better performance, PHP-FPM for maximum stability.
 
+### Opcache Optimization is important
+
+Locate your loaded ini with `php --ini` and look for opcache.
+
+```ini
+; Core settings
+opcache.enable=1                          ; Enable OPcache for PHP requests
+opcache.enable_cli=0                      ; Disable OPcache for CLI (keeps CLI predictable)
+opcache.memory_consumption=256            ; Shared memory size for OPcache in MB
+opcache.interned_strings_buffer=32        ; Memory for interned strings (improves performance)
+opcache.max_accelerated_files=20000       ; Max number of PHP files OPcache can store
+
+; File change checks (disabled for production immutability)
+; Reloading php-fpm and frankenphp will reload opcache too
+opcache.validate_timestamps=0             ; Do not check file timestamps (best performance)
+opcache.revalidate_freq=0                 ; No effect when timestamps are disabled
+
+; Performance
+opcache.fast_shutdown=1                   ; Faster shutdown for each request
+opcache.enable_file_override=1            ; Allow OPcache to override include paths for speed
+
+; Optimization
+opcache.optimization_level=2147483647     ; Enable all optimization passes
+opcache.save_comments=1                   ; Keep PHP comments (needed for annotations/reflection)
+
+; File caching behavior
+opcache.file_update_protection=0          ; No delay for detecting file changes (safe when immutable)
+opcache.max_wasted_percentage=10          ; Restart OPcache if fragmentation exceeds 10%
+
+; Preloading (optional)
+; opcache.preload=/path/to/preload.php    ; Preload script for large frameworks (not necessary for frankenphp)
+; opcache.preload_user=www-data           ; User for preload (match your PHP-FPM user)
+
+; JIT (disabled for stability unless you need it)
+opcache.jit=off                           ; Disable Just-In-Time compiler (not needed for most apps)
+opcache.jit_buffer_size=0                 ; No memory reserved for JIT
+```
 ---
 
 ### Credit:
 
-Inspiration from: https://www.damianoperri.it/public/phpCalculator/
+Inspiration from: [https://www.damianoperri.it/public/phpCalculator/](https://www.damianoperri.it/public/phpCalculator/)
